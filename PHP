@@ -1,0 +1,52 @@
+<?php
+
+	abstract class Logger {
+        abstract protected function logAdd($entry);
+}
+ 
+	class DBLogger extends Logger{
+         private $DBH;
+ 
+        function __construct() {
+        $a = func_get_args();
+        $b = func_num_args();
+		
+        if (method_exists($this,$f='__construct'.$b)) {
+            call_user_func_array(array($this,$f),$a);
+        }
+    }
+ 
+    private function __construct1() {
+        try {
+            $this->DBH = new PDO("mysql:host=localhost;dbname=log", 'user', 'password');
+			}  
+        catch(PDOException $e) {  
+            echo $e->getMessage();  
+			}
+    }
+ 
+    private function __construct2($host,$dbname,$user,$pass) {
+        try {  
+            $this->DBH = new PDO("mysql:host=$host;dbname=$dbname", $user, $pass);
+			}  
+        catch(PDOException $e) {  
+            echo $e->getMessage();  
+            }
+        }
+ 
+    function logAdd($entry) {
+        $entry = date("Y-m-d H:i:s ").serialize($entry);
+        try {
+            $STH = $this->DBH->prepare("INSERT INTO log (log) values (?)");
+            $STH->bindParam(1, $entry);
+            $STH->execute();
+            }
+            catch(PDOException $e) {  
+                echo $e->getMessage();  
+            }
+        }
+}
+	$dbLog = new DBLogger();
+	$dbLog->logAdd("Error");
+ 
+?>
